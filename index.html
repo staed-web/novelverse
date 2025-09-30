@@ -1,612 +1,252 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NovelVerse - Read & Write Stories</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        :root {
-            --primary: #6a5acd;
-            --primary-dark: #5a4ac0;
-            --secondary: #ff6b6b;
-            --light: #f8f9fa;
-            --dark: #212529;
-            --gray: #6c757d;
-            --light-gray: #e9ecef;
-            --success: #28a745;
-            --warning: #ffc107;
-            --card-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            --transition: all 0.3s ease;
-            --header-height: 60px;
-        }
-
-        body {
-            background-color: #f5f7fa;
-            color: var(--dark);
-            line-height: 1.6;
-            padding-top: var(--header-height);
-        }
-
-        /* Collapsible Header */
-        header {
-            background: white;
-            color: var(--dark);
-            padding: 0 2%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: var(--header-height);
-            z-index: 1000;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            transition: var(--transition);
-        }
-
-        header.collapsed {
-            height: 40px;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: var(--primary);
-        }
-
-        .logo i {
-            font-size: 1.8rem;
-        }
-
-        nav ul {
-            display: flex;
-            list-style: none;
-            gap: 1.5rem;
-        }
-
-        nav a {
-            color: var(--dark);
-            text-decoration: none;
-            font-weight: 500;
-            padding: 0.5rem 0.8rem;
-            border-radius: 6px;
-            transition: var(--transition);
-            font-size: 0.95rem;
-        }
-
-        nav a:hover, nav a.active {
-            color: var(--primary);
-            background: rgba(106, 90, 205, 0.1);
-        }
-
-        .auth-buttons {
-            display: flex;
-            gap: 0.8rem;
-        }
-
-        .btn {
-            padding: 0.5rem 1.2rem;
-            border-radius: 6px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: var(--transition);
-            border: none;
-            font-size: 0.95rem;
-        }
-
-        .btn-outline {
-            background: transparent;
-            border: 1px solid var(--primary);
-            color: var(--primary);
-        }
-
-        .btn-outline:hover {
-            background: var(--primary);
-            color: white;
-        }
-
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: var(--primary-dark);
-        }
-
-        .toggle-header {
-            display: none;
-            background: none;
-            border: none;
-            color: var(--gray);
-            font-size: 1.2rem;
-            cursor: pointer;
-            padding: 0.5rem;
-        }
-
-        /* Main Content */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-
-        /* Dashboard Layout */
-        .dashboard {
-            display: grid;
-            grid-template-columns: 250px 1fr;
-            gap: 2rem;
-        }
-
-        @media (max-width: 992px) {
-            .dashboard {
-                grid-template-columns: 1fr;
-            }
-            
-            .sidebar {
-                display: none;
-            }
-        }
-
-        /* Sidebar */
-        .sidebar {
-            background: white;
-            border-radius: 12px;
-            padding: 1.5rem;
-            box-shadow: var(--card-shadow);
-            height: fit-content;
-        }
-
-        .sidebar h3 {
-            margin-bottom: 1.5rem;
-            padding-bottom: 0.8rem;
-            border-bottom: 1px solid var(--light-gray);
-            color: var(--primary);
-        }
-
-        .sidebar-menu {
-            list-style: none;
-        }
-
-        .sidebar-menu li {
-            margin-bottom: 0.8rem;
-        }
-
-        .sidebar-menu a {
-            display: flex;
-            align-items: center;
-            gap: 0.8rem;
-            color: var(--dark);
-            text-decoration: none;
-            padding: 0.6rem 0.8rem;
-            border-radius: 6px;
-            transition: var(--transition);
-        }
-
-        .sidebar-menu a:hover, .sidebar-menu a.active {
-            background: rgba(106, 90, 205, 0.1);
-            color: var(--primary);
-        }
-
-        /* Main Content Area */
-        .main-content {
-            background: white;
-            border-radius: 12px;
-            padding: 2rem;
-            box-shadow: var(--card-shadow);
-        }
-
-        .content-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-        }
-
-        .content-header h2 {
-            color: var(--primary);
-        }
-
-        /* Story Cards */
-        .stories-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .story-card {
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: var(--card-shadow);
-            transition: var(--transition);
-            background: white;
-        }
-
-        .story-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 6px 16px rgba(0,0,0,0.15);
-        }
-
-        .story-image {
-            height: 180px;
-            background: linear-gradient(135deg, #6a5acd, #8a7bff);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 3rem;
-        }
-
-        .story-info {
-            padding: 1.2rem;
-        }
-
-        .story-info h3 {
-            margin-bottom: 0.5rem;
-            color: var(--dark);
-        }
-
-        .story-info p {
-            color: var(--gray);
-            font-size: 0.95rem;
-            margin-bottom: 1rem;
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        .story-meta {
-            display: flex;
-            justify-content: space-between;
-            color: var(--gray);
-            font-size: 0.9rem;
-        }
-
-        .author-info {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .author-avatar {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            background: var(--primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 0.7rem;
-            font-weight: bold;
-        }
-
-        /* Monetization Section */
-        .monetization-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
-            margin-top: 1.5rem;
-        }
-
-        .monetize-card {
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: var(--card-shadow);
-            border: 1px solid var(--light-gray);
-        }
-
-        .monetize-header {
-            background: var(--primary);
-            color: white;
-            padding: 1.2rem;
-            text-align: center;
-        }
-
-        .monetize-body {
-            padding: 1.5rem;
-        }
-
-        .monetize-body ul {
-            list-style: none;
-            margin: 1.2rem 0;
-        }
-
-        .monetize-body li {
-            padding: 0.5rem 0;
-            display: flex;
-            align-items: center;
-            gap: 0.8rem;
-        }
-
-        .monetize-body li i {
-            color: var(--success);
-        }
-
-        /* Stats Section */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-            margin-top: 2rem;
-        }
-
-        .stat-card {
-            background: white;
-            border-radius: 12px;
-            padding: 1.5rem;
-            text-align: center;
-            box-shadow: var(--card-shadow);
-        }
-
-        .stat-value {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--primary);
-            margin: 0.5rem 0;
-        }
-
-        .stat-label {
-            color: var(--gray);
-            font-size: 0.95rem;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .toggle-header {
-                display: block;
-            }
-            
-            .auth-buttons {
-                display: none;
-            }
-            
-            nav ul {
-                display: none;
-            }
-            
-            nav.responsive ul {
-                display: flex;
-                position: absolute;
-                top: var(--header-height);
-                left: 0;
-                right: 0;
-                background: white;
-                flex-direction: column;
-                padding: 1rem 2%;
-                box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            }
-            
-            nav.responsive ul li {
-                margin: 0.5rem 0;
-            }
-            
-            .container {
-                padding: 1.5rem;
-            }
-            
-            .content-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 1rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .stories-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .monetization-cards {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NovelVerse</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 </head>
 <body>
-    <!-- Collapsible Header -->
-    <header id="mainHeader">
-        <div class="logo">
-            <i class="fas fa-book-open"></i>
-            <span>NovelVerse</span>
-        </div>
-        <nav id="mainNav">
-            <ul>
-                <li><a href="#" class="active">Dashboard</a></li>
-                <li><a href="#">My Stories</a></li>
-                <li><a href="#">Reader Feed</a></li>
-                <li><a href="#">Monetization</a></li>
-                <li><a href="#">Community</a></li>
-            </ul>
-        </nav>
-        <div class="auth-buttons">
-            <button class="btn btn-outline">Profile</button>
-            <button class="btn btn-primary">New Story</button>
-        </div>
-        <button class="toggle-header" id="toggleHeader">
-            <i class="fas fa-bars"></i>
-        </button>
-    </header>
-
-    <!-- Main Content -->
+  <!-- Collapsible Header -->
+  <header id="header">
     <div class="container">
-        <div class="dashboard">
-            <div class="sidebar">
-                <h3>Author Dashboard</h3>
-                <ul class="sidebar-menu">
-                    <li><a href="#" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-                    <li><a href="#"><i class="fas fa-book"></i> My Stories</a></li>
-                    <li><a href="#"><i class="fas fa-eye"></i> Reader Analytics</a></li>
-                    <li><a href="#"><i class="fas fa-coins"></i> Monetization</a></li>
-                    <li><a href="#"><i class="fas fa-comments"></i> Community</a></li>
-                    <li><a href="#"><i class="fas fa-cog"></i> Settings</a></li>
-                    <li><a href="#"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
-                </ul>
-                
-                <h3 style="margin-top: 2rem;">Your Stats</h3>
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-value">12</div>
-                        <div class="stat-label">Stories</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value">4.2K</div>
-                        <div class="stat-label">Readers</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value">$142</div>
-                        <div class="stat-label">Earnings</div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="main-content">
-                <div class="content-header">
-                    <h2>Your Stories</h2>
-                    <button class="btn btn-primary">Create New Story</button>
-                </div>
-                
-                <div class="stories-grid">
-                    <!-- Story 1 -->
-                    <div class="story-card">
-                        <div class="story-image">
-                            <i class="fas fa-dragon"></i>
-                        </div>
-                        <div class="story-info">
-                            <h3>Dragon's Legacy</h3>
-                            <p>A young orphan discovers he's the last descendant of an ancient dragon clan, destined to restore balance to a world torn by war.</p>
-                            <div class="story-meta">
-                                <div class="author-info">
-                                    <div class="author-avatar">SJ</div>
-                                    <span>Sarah Johnson</span>
-                                </div>
-                                <span>12 chapters</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Story 2 -->
-                    <div class="story-card">
-                        <div class="story-image">
-                            <i class="fas fa-robot"></i>
-                        </div>
-                        <div class="story-info">
-                            <h3>Neon Circuit</h3>
-                            <p>In a cyberpunk future, a hacker discovers a sentient AI that could either save humanity or destroy it.</p>
-                            <div class="story-meta">
-                                <div class="author-info">
-                                    <div class="author-avatar">MR</div>
-                                    <span>Michael Rodriguez</span>
-                                </div>
-                                <span>8 chapters</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Story 3 -->
-                    <div class="story-card">
-                        <div class="story-image">
-                            <i class="fas fa-heart"></i>
-                        </div>
-                        <div class="story-info">
-                            <h3>Second Chance Cafe</h3>
-                            <p>After a painful breakup, Emma opens a cafe where every customer gets a second chance at love.</p>
-                            <div class="story-meta">
-                                <div class="author-info">
-                                    <div class="author-avatar">TP</div>
-                                    <span>Taylor Park</span>
-                                </div>
-                                <span>15 chapters</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <h2 style="margin: 2.5rem 0 1.5rem; color: var(--primary);">Monetization Options</h2>
-                <div class="monetization-cards">
-                    <div class="monetize-card">
-                        <div class="monetize-header">
-                            <h3>AdSense Integration</h3>
-                        </div>
-                        <div class="monetize-body">
-                            <p>Earn revenue from non-intrusive ads placed between chapters. Our optimized system ensures maximum earnings with minimal reader disruption.</p>
-                            <ul>
-                                <li><i class="fas fa-check-circle"></i> 70/30 revenue split (you get 70%)</li>
-                                <li><i class="fas fa-check-circle"></i> Ad placement customization</li>
-                                <li><i class="fas fa-check-circle"></i> Real-time earnings dashboard</li>
-                            </ul>
-                            <button class="btn btn-primary" style="width: 100%;">Enable AdSense</button>
-                        </div>
-                    </div>
-                    
-                    <div class="monetize-card">
-                        <div class="monetize-header">
-                            <h3>Premium Content</h3>
-                        </div>
-                        <div class="monetize-body">
-                            <p>Offer exclusive content to dedicated readers through our subscription model. Set your own pricing and unlock special features.</p>
-                            <ul>
-                                <li><i class="fas fa-check-circle"></i> Flexible pricing tiers ($1-10/month)</li>
-                                <li><i class="fas fa-check-circle"></i> Early access to new chapters</li>
-                                <li><i class="fas fa-check-circle"></i> Bonus content for subscribers</li>
-                            </ul>
-                            <button class="btn btn-primary" style="width: 100%;">Setup Premium</button>
-                        </div>
-                    </div>
-                    
-                    <div class="monetize-card">
-                        <div class="monetize-header">
-                            <h3>Reader Support</h3>
-                        </div>
-                        <div class="monetize-body">
-                            <p>Allow readers to support your work directly through tips, donations, or one-time payments for special content.</p>
-                            <ul>
-                                <li><i class="fas fa-check-circle"></i> Tip jar on every story page</li>
-                                <li><i class="fas fa-check-circle"></i> Milestone rewards system</li>
-                                <li><i class="fas fa-check-circle"></i> Personalized thank you notes</li>
-                            </ul>
-                            <button class="btn btn-primary" style="width: 100%;">Enable Support</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+      <div class="logo" id="logo">📖 NovelVerse</div>
+      <div class="nav" id="nav">
+        <button id="toggleNav">☰</button>
+        <div class="links">
+          <a href="#" id="tab-read">Read</a>
+          <a href="#" id="tab-write">Write</a>
+          <a href="#" id="tab-profile">Profile</a>
         </div>
+        <button id="btnAuth">Sign In</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container">
+    <!-- Read Tab -->
+    <div id="read-tab" class="tab-content active">
+      <h2>Public Stories</h2>
+      <div id="stories-list">Loading stories...</div>
     </div>
 
-    <script>
-        // Collapsible header functionality
-        document.addEventListener('DOMContentLoaded', function() {
-            const header = document.getElementById('mainHeader');
-            const toggleBtn = document.getElementById('toggleHeader');
-            const nav = document.getElementById('mainNav');
-            let isCollapsed = false;
-            
-            // Toggle header collapse
-            header.addEventListener('click', function(e) {
-                if (e.target === header || e.target.closest('.logo')) {
-                    isCollapsed = !isCollapsed;
-                    header.classList.toggle('collapsed', isCollapsed);
-                    
-                    // Update icon
-                    const icon = toggleBtn.querySelector('i');
-                    icon.className = isCollapsed ? 'fas fa-chevron-down' : 'fas fa-bars';
-                }
-            });
-            
-            // Mobile navigation toggle
-            toggleBtn.addEventListener('click', function(e) {
-           
+    <!-- Write Tab -->
+    <div id="write-tab" class="tab-content">
+      <h2>Write Your Story</h2>
+      <input type="text" id="story-title" placeholder="Story Title" />
+      <textarea id="story-content" placeholder="Write your chapter here..."></textarea>
+      <button id="btn-save">Save Story</button>
+      <div id="save-status"></div>
+    </div>
+
+    <!-- Profile Tab -->
+    <div id="profile-tab" class="tab-content">
+      <h2>Your Profile</h2>
+      <div id="profile-info">Sign in to see your stories</div>
+    </div>
+  </main>
+
+  <!-- AdSense Placeholder (for monetization) -->
+  <div class="ad-container">
+    <div class="ad-placeholder">Ad Space for Authors</div>
+  </div>
+
+  <script>
+    // 🔥 PASTE YOUR FIREBASE CONFIG HERE (from Step 1)
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "novelverse.firebaseapp.com",
+      projectId: "novelverse",
+      storageBucket: "novelverse.appspot.com",
+      messagingSenderId: "123456789",
+      appId: "1:123456789:web:abcdef123456"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+
+    // DOM Elements
+    const header = document.getElementById('header');
+    const logo = document.getElementById('logo');
+    const nav = document.getElementById('nav');
+    const toggleNav = document.getElementById('toggleNav');
+    const btnAuth = document.getElementById('btnAuth');
+    const tabRead = document.getElementById('tab-read');
+    const tabWrite = document.getElementById('tab-write');
+    const tabProfile = document.getElementById('tab-profile');
+    const readTab = document.getElementById('read-tab');
+    const writeTab = document.getElementById('write-tab');
+    const profileTab = document.getElementById('profile-tab');
+    const storiesList = document.getElementById('stories-list');
+    const storyTitle = document.getElementById('story-title');
+    const storyContent = document.getElementById('story-content');
+    const btnSave = document.getElementById('btn-save');
+    const saveStatus = document.getElementById('save-status');
+    const profileInfo = document.getElementById('profile-info');
+
+    // State
+    let currentUser = null;
+
+    // Toggle mobile nav
+    toggleNav.addEventListener('click', () => {
+      nav.classList.toggle('mobile-open');
+    });
+
+    // Collapse header on logo click
+    logo.addEventListener('click', () => {
+      header.classList.toggle('collapsed');
+    });
+
+    // Tab switching
+    function showTab(tabName) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav a').forEach(el => el.classList.remove('active'));
+      
+      if (tabName === 'read') {
+        readTab.classList.add('active');
+        tabRead.classList.add('active');
+        loadPublicStories();
+      } else if (tabName === 'write') {
+        writeTab.classList.add('active');
+        tabWrite.classList.add('active');
+      } else if (tabName === 'profile') {
+        profileTab.classList.add('active');
+        tabProfile.classList.add('active');
+        loadUserProfile();
+      }
+    }
+
+    tabRead.addEventListener('click', (e) => { e.preventDefault(); showTab('read'); });
+    tabWrite.addEventListener('click', (e) => { e.preventDefault(); showTab('write'); });
+    tabProfile.addEventListener('click', (e) => { e.preventDefault(); showTab('profile'); });
+
+    // Auth
+    btnAuth.addEventListener('click', () => {
+      if (currentUser) {
+        auth.signOut();
+      } else {
+        const email = prompt("Enter your email:");
+        const password = prompt("Enter a password (min 6 chars):");
+        if (email && password) {
+          auth.createUserWithEmailAndPassword(email, password)
+            .catch(error => alert("Error: " + error.message));
+        }
+      }
+    });
+
+    auth.onAuthStateChanged(user => {
+      currentUser = user;
+      if (user) {
+        btnAuth.textContent = "Sign Out";
+        showTab('profile');
+      } else {
+        btnAuth.textContent = "Sign In";
+        showTab('read');
+      }
+    });
+
+    // Load public stories
+    function loadPublicStories() {
+      storiesList.innerHTML = "Loading...";
+      db.collection("stories")
+        .where("isPublic", "==", true)
+        .orderBy("createdAt", "desc")
+        .limit(10)
+        .get()
+        .then(snapshot => {
+          if (snapshot.empty) {
+            storiesList.innerHTML = "<p>No stories yet. Be the first to write one!</p>";
+            return;
+          }
+          let html = "";
+          snapshot.forEach(doc => {
+            const story = doc.data();
+            html += `
+              <div class="story-card">
+                <h3>${story.title}</h3>
+                <p>${story.content.substring(0, 150)}...</p>
+                <small>By: ${story.authorEmail}</small>
+              </div>
+            `;
+          });
+          storiesList.innerHTML = html;
+        })
+        .catch(err => {
+          storiesList.innerHTML = `<p>Error loading stories: ${err.message}</p>`;
+        });
+    }
+
+    // Save story
+    btnSave.addEventListener('click', () => {
+      if (!currentUser) {
+        alert("Please sign in first!");
+        return;
+      }
+      const title = storyTitle.value.trim();
+      const content = storyContent.value.trim();
+      if (!title || !content) {
+        saveStatus.textContent = "Please fill in both title and content.";
+        return;
+      }
+      saveStatus.textContent = "Saving...";
+      db.collection("stories").add({
+        title: title,
+        content: content,
+        authorEmail: currentUser.email,
+        isPublic: true,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      })
+      .then(() => {
+        saveStatus.textContent = "✅ Story saved!";
+        storyTitle.value = "";
+        storyContent.value = "";
+        setTimeout(() => showTab('read'), 1500);
+      })
+      .catch(err => {
+        saveStatus.textContent = "❌ Error: " + err.message;
+      });
+    });
+
+    // Load user profile
+    function loadUserProfile() {
+      if (!currentUser) {
+        profileInfo.innerHTML = "<p>Please sign in to see your profile.</p>";
+        return;
+      }
+      profileInfo.innerHTML = `
+        <p><strong>Email:</strong> ${currentUser.email}</p>
+        <p><strong>Your Stories:</strong></p>
+        <div id="user-stories">Loading...</div>
+      `;
+      db.collection("stories")
+        .where("authorEmail", "==", currentUser.email)
+        .orderBy("createdAt", "desc")
+        .get()
+        .then(snapshot => {
+          const userStories = document.getElementById('user-stories');
+          if (snapshot.empty) {
+            userStories.innerHTML = "<p>You haven't written any stories yet.</p>";
+            return;
+          }
+          let html = "<ul>";
+          snapshot.forEach(doc => {
+            const story = doc.data();
+            html += `<li>${story.title} (${story.content.substring(0, 30)}...)</li>`;
+          });
+          html += "</ul>";
+          userStories.innerHTML = html;
+        });
+    }
+
+    // Init
+    showTab('read');
+  </script>
+</body>
+</html>
